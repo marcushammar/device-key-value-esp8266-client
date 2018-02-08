@@ -36,38 +36,35 @@ String DeviceKeyValue::getString(String device, String key) {
 }
 
 String DeviceKeyValue::request(String device, String key, String value) {
-  WiFiClientSecure wiFiClientSecure;
-  if (!wiFiClientSecure.connect(server.c_str(), port)) {
-    return "ERROR (Device could not connect)";
+  if (WiFi.status() != WL_CONNECTED) {
+    return "ERROR (WiFi not connected)";
   }
 
-  String url1 = "/?device=";
-  String url2 = device;
-  String url3 = "&key=";
-  String url4 = key;
-  String url5 = "&value=";
-  String url6 = value;
+  HTTPClient httpClient;
 
-  String url = url1 + url2 + url3 + url4 + url5 + url6;
+  String url1 = "http://";
+  String url2 = server;
+  String url3 = "/?device=";
+  String url4 = device;
+  String url5 = "&key=";
+  String url6 = key;
+  String url7 = "&value=";
+  String url8 = value;
 
-  String request1 = "GET ";
-  String request2 = url;
-  String request3 = " HTTP/1.1\r\nHost: ";
-  String request4 = server;
-  String request5 = "\r\nUser-Agent: ESP8266\r\nConnection: close\r\n\r\n";
+  String url = url1 + url2 + url3 + url4 + url5 + url6 + url7 + url8;
 
-  String request = request1 + request2 + request3 + request4 + request5;
+  httpClient.begin(url);
+  int httpResponseCode = httpClient.GET();
 
-  wiFiClientSecure.print(request);
+  String response;
 
-  while (wiFiClientSecure.connected()) {
-    String response = wiFiClientSecure.readStringUntil('\n');
-    if (response == "\r") {
-      break;
-    }
+  if (httpResponseCode > 0) {
+    response = httpClient.getString();
+  } else {
+    response = "ERROR (Could not connect to the server)";
   }
 
-  String response = wiFiClientSecure.readStringUntil('\n');
+  httpClient.end();
 
   return response;
 }

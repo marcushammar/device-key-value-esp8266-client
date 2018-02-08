@@ -18,7 +18,7 @@
 #define DEVICEKEYVALUE_H
 
 #include <ESP8266WiFi.h>
-#include <WiFiClientSecure.h>
+#include <ESP8266HTTPClient.h>
 
 class DeviceKeyValue {
 public:
