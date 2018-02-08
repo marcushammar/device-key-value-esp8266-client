@@ -16,15 +16,23 @@
 
 #include "DeviceKeyValue.h"
 
-void DeviceKeyValue::connect(String ssid, String password, String newServer) {
-  server = newServer;
-  port = 443;
-
+void DeviceKeyValue::connectToWiFi(String ssid, String password) {
   WiFi.mode(WIFI_STA);
   WiFi.begin(ssid.c_str(), password.c_str());
   while (WiFi.status() != WL_CONNECTED) {
     delay(1000);
   }
+}
+
+void DeviceKeyValue::setServerHTTPS(String newServer, String newFingerprint) {
+  useHTTPS = true;
+  server = newServer;
+  fingerprint = newFingerprint;
+}
+
+void DeviceKeyValue::setServerHTTP(String newServer) {
+  useHTTPS = false;
+  server = newServer;
 }
 
 void DeviceKeyValue::setString(String device, String key, String value) {
@@ -42,7 +50,7 @@ String DeviceKeyValue::request(String device, String key, String value) {
 
   HTTPClient httpClient;
 
-  String url1 = "http://";
+  String url1 = (useHTTPS) ? "https://" : "http://";
   String url2 = server;
   String url3 = "/?device=";
   String url4 = device;
@@ -53,7 +61,12 @@ String DeviceKeyValue::request(String device, String key, String value) {
 
   String url = url1 + url2 + url3 + url4 + url5 + url6 + url7 + url8;
 
-  httpClient.begin(url);
+  if (useHTTPS) {
+    httpClient.begin(url, fingerprint);
+  } else {
+    httpClient.begin(url);
+  }
+  
   int httpResponseCode = httpClient.GET();
 
   String response;
@@ -61,7 +74,7 @@ String DeviceKeyValue::request(String device, String key, String value) {
   if (httpResponseCode > 0) {
     response = httpClient.getString();
   } else {
-    response = "ERROR (Could not connect to the server)";
+    response = String("ERROR (Could not connect to the server. Response code ") + httpResponseCode + ")";
   }
 
   httpClient.end();

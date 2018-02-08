@@ -22,14 +22,17 @@
 
 class DeviceKeyValue {
 public:
-  void connect(String ssid, String password, String newServer);
+  void connectToWiFi(String ssid, String password);
+  void setServerHTTPS(String newServer, String newFingerprint);
+  void setServerHTTP(String newServer);
   void setString(String device, String key, String value);
   String getString(String device, String key);
 
 private:
   String request(String device, String key, String value);
   String server;
-  int port;
+  String fingerprint;
+  bool useHTTPS;
 };
 
 #endif

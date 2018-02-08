@@ -20,27 +20,43 @@ void setup() {
   String wifi_ssid = "ssid";
   String wifi_password = "password";
   String server = "server";
-  String device = "device-01";
-  String key = "test";
-  String value = "it_works";
+  String fingerprint = "XX XX XX XX XX XX XX XX XX XX XX XX XX XX XX XX XX XX XX XX";
 
   Serial.begin(115200);
 
   DeviceKeyValue deviceKeyValue;
 
   Serial.print("Connecting to WiFi...");
-  deviceKeyValue.connect(wifi_ssid, wifi_password, server);
+  deviceKeyValue.connectToWiFi(wifi_ssid, wifi_password);
   Serial.println(" done");
 
-  Serial.print("Set a value on the server...");
-  deviceKeyValue.setString(device, key, value);
+  Serial.print("Set HTTPS server...");
+  deviceKeyValue.setServerHTTPS(server, fingerprint);
   Serial.println(" done");
 
-  Serial.print("Get a value from the server...");
-  String output = deviceKeyValue.getString(device, key);
+  Serial.print("Set a value on the HTTPS server...");
+  deviceKeyValue.setString("device-01", "test_key_https", "https_works");
   Serial.println(" done");
 
-  Serial.println("The response from the server was: " + output);
+  Serial.print("Get a value from the HTTPS server...");
+  String outputHTTPSServer = deviceKeyValue.getString("device-01", "test_key_https");
+  Serial.println(" done");
+
+  Serial.println("The response from the HTTPS server was: " + outputHTTPSServer);
+
+  Serial.print("Set HTTP server...");
+  deviceKeyValue.setServerHTTP(server);
+  Serial.println(" done");
+
+  Serial.print("Set a value on the HTTP server...");
+  deviceKeyValue.setString("device-01", "test_key_http", "http_works");
+  Serial.println(" done");
+
+  Serial.print("Get a value from the HTTP server...");
+  String outputHTTPServer = deviceKeyValue.getString("device-01", "test_key_http");
+  Serial.println(" done");
+
+  Serial.println("The response from the HTTP server was: " + outputHTTPServer);
 }
 
 void loop() {
